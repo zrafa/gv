@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <math.h>
 
 void calcular_varianza_desvio_estandar(double * medidas, int sum, int cant, int mi);
@@ -107,11 +108,38 @@ void grosor(double * s, double * f, int n, int dim, int xsize, int ysize, int co
 	double d; //distancia entre dos puntos
 
 
+
+/* Creamos un archivo eps para anexar */
+  FILE * eps;
+	char *filename = "grosordelpelo.eps";
+
+  /* open file */
+  if( strcmp(filename,"-") == 0 ) eps = stdout;
+  else eps = fopen(filename,"w");
+  if( eps == NULL ) {
+	fprintf(stderr, "Error: unable to open EPS output file.\n");
+	exit(1);
+               }
+
+
+  /* write EPS header */
+  fprintf(eps,"%%!PS-Adobe-3.0 EPSF-3.0\n");
+  fprintf(eps,"%%%%BoundingBox: 0 0 %d %d\n",xsize,ysize);
+  fprintf(eps,"%%%%Creator: LSD, Line Segment Detector\n");
+  fprintf(eps,"%%%%Title: (%s)\n",filename);
+  fprintf(eps,"%%%%EndComments\n");
+
+/* Fin de Creamos un archivo eps para anexar */
+
+
+
   /* para saber si son medidas buenas o malas y varianza y desviacion estandar*/
   int mi = 0; // indice del vector medidas
   int mi_old = 0; // indice del vector medidas
   int cant_old=1, sum_old=0;
   int k_old=0; // para saber si se hicieron las 3 mediciones en un segmento
+       char lineas_rojas[600];
+       char linea_roja[200];
 
   for (i=0;i<200;i++) medidas[i]=0;
   	
@@ -142,6 +170,9 @@ void grosor(double * s, double * f, int n, int dim, int xsize, int ysize, int co
         cant_old = cant;
         mi_old = mi;
         k_old = 0;
+               lineas_rojas[0] = '\0';
+               linea_roja[0] = '\0';
+
 
 		for(k=0;k<3;k++) {
 			/* Por cada segmento tomamos 3 puntos, inicio, medio y final */
@@ -261,6 +292,23 @@ void grosor(double * s, double * f, int n, int dim, int xsize, int ysize, int co
           medidas[mi] = d; mi++;
 
           fprintf(stderr, "d = %f\n", d);
+
+
+
+/* Agregamos datos al archivo grosordelpelo.eps */
+      // fprintf( eps,"newpath %f %f moveto %f %f lineto 1 0 0 setrgbcolor 4  setlinewidth stroke\n",
+ sprintf(linea_roja, "newpath %f %f moveto %f %f lineto 1 0 0 setrgbcolor 4  setlinewidth stroke\n",
+x,
+(double) ysize - y,
+               ix, 
+(double) ysize - iy
+                 );
+
+       strcat(lineas_rojas, linea_roja);
+
+/* Fin de Agregamos datos al archivo grosordelpelo.eps */
+
+
     		}
 		  }		/* del for j */
 		}		/* del for k */
@@ -272,6 +320,8 @@ void grosor(double * s, double * f, int n, int dim, int xsize, int ysize, int co
       mi = mi_old;
       fprintf(stderr, "Medidas malas \n");
     } else {
+                       fprintf( eps,"%s", lineas_rojas);
+
       fprintf(stderr, "Medidas buenas \n");
     }
 	}
@@ -279,6 +329,20 @@ void grosor(double * s, double * f, int n, int dim, int xsize, int ysize, int co
 	if (mi==0) mi=1;
 	calcular_varianza_desvio_estandar(medidas, sum, cant, mi); // mi es el indice del vector, nro de medidas
 	printf("Grosor del PELO en pixels : %f\n", (double)sum/cant);
+
+
+
+/* Cerramos al archivo grosordelpelo.eps */
+  fprintf(eps,"showpage\n");
+  fprintf(eps,"%%%%EOF\n");
+  if( eps != stdout && fclose(eps) == EOF ) {
+	fprintf(stderr, "Error: unable to close file while writing EPS file.\n");
+	exit(1);
+               }
+/* Fin de Cerramos al archivo grosordelpelo.eps */
+
+
+
 }
 
 /* Creamos el arreglo de pendientes y desplazamiento */
