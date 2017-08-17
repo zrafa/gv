@@ -163,7 +163,7 @@ class PelosVisionGUI(Frame):
             self.filemenu.entryconfig("Abrir", state='disabled')
 
             if self.vssrc.get() == 1:
-                self.set_cam()
+                self.setcam()
             elif self.vssrc.get() == 2:
                 self.cam.release()
 
@@ -285,16 +285,16 @@ class PelosVisionGUI(Frame):
             self.limite.delete(0, END)
             self.limite.insert(0, self.control.config.limite)
 
-    def set_res(self, cap, x,y):
+    def setres(self, cap, x,y):
         cap.set(cv2.cv.CV_CAP_PROP_FRAME_WIDTH, int(x))
         cap.set(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT, int(y))
         return str(cap.get(cv2.cv.CV_CAP_PROP_FRAME_WIDTH)),str(cap.get(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT))
 
-    def set_cam(self):
+    def setcam(self):
         self.cam.release()
         self.cam.open(int(self.control.config.camara))
         if self.cam.isOpened():
-            res = self.set_res(self.cam, 1280, 960)
+            res = self.setres(self.cam, 1280, 960)
             self.status.set("Camara %d lista %s.", int(self.control.config.camara), res)
         else:
             self.status.set("Camara %d no está lista.", int(self.control.config.camara))
