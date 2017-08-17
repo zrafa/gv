@@ -1,0 +1,26 @@
+CC=gcc
+#CFLAGS+=-g
+CFLAGS+=
+LDFLAGS+=-ljpeg
+LDFLAGS+=
+
+PROG=cliente_v4l2
+SRCS=utils
+INCS=-I. -I$(SRCS)
+
+OBJS =  $(PROG).o \
+        $(SRCS)/YUYVtoJPEG.o \
+        $(SRCS)/socket.o
+
+.PHONY: all clean
+$(PROG): $(OBJS)
+	$(CC) -o $(PROG) $(OBJS) $(LDFLAGS)
+
+%.o: %.c
+	$(CC) -c $(CFLAGS)  $(INCS) $<  -o $@
+
+all: $(PROG)
+
+clean:
+	rm -f $(OBJS) $(PROG)
+
